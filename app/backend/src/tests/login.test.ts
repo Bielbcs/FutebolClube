@@ -4,7 +4,6 @@ import * as chai from 'chai';
 import chaiHttp = require('chai-http');
 
 import App from '../app';
-import Example from '../database/models/ExampleModel';
 
 import { Response } from 'superagent';
 
@@ -15,32 +14,6 @@ const { app } = new App();
 const { expect } = chai;
 
 describe('Seu teste', () => {
-  /**
-   * Exemplo do uso de stubs com tipos
-   */
-
-  // let chaiHttpResponse: Response;
-
-  // before(async () => {
-  //   sinon
-  //     .stub(Example, "findOne")
-  //     .resolves({
-  //       ...<Seu mock>
-  //     } as Example);
-  // });
-
-  // after(()=>{
-  //   (Example.findOne as sinon.SinonStub).restore();
-  // })
-
-  // it('...', async () => {
-  //   chaiHttpResponse = await chai
-  //      .request(app)
-  //      ...
-
-  //   expect(...)
-  // });
-
   it('Should be able to Login with corrects credentials', async () => {
     const response: Response = await chai.request(app).post('/login').send({
       email: 'admin@admin.com',
@@ -67,5 +40,26 @@ describe('Seu teste', () => {
 
     expect(response.status).to.be.eq(400);
     expect(response.body.message).to.be.eq('All fields must be filled');
+  });
+
+  it('Should be able to validate the login with correct token', async () => {
+    const { body: {token} } = await chai.request(app).post('/login').send({
+      email: 'admin@admin.com',
+      password: 'secret_admin'
+    })
+
+    const response = await chai.request(app).get('/login/validate')
+    .set('authorization', token);
+
+    expect(response.status).to.be.eq(200);
+    expect(response.body.role).to.be.eq('admin');
+  });
+
+  it("Should't be able to validate the login with incorrect token", async () => {
+    const response = await chai.request(app).get('/login/validate')
+    .set('authorization', 'wrong');
+
+    expect(response.status).to.be.eq(404);
+    expect(response.body.message).to.be.eq('jwt malformed');
   });
 });
