@@ -1,22 +1,17 @@
 import * as express from 'express';
-import LoginController from './database/controllers/login.controller';
-import LoginValidation from './middlewares/loginValidation';
 import loginRoutes from './routes/login.routes';
+import teamRoutes from './routes/team.routes';
 
 class App {
   public app: express.Express;
-  private loginController: LoginController;
-  private validation: LoginValidation;
-
   constructor() {
     this.app = express();
-    this.loginController = new LoginController();
-    this.validation = new LoginValidation();
 
     this.config();
 
     // Não remover essa rota
     this.app.get('/', (req, res) => res.json({ ok: true }));
+    this.app.use('/teams', teamRoutes);
     this.app.use('/login', loginRoutes);
   }
 
