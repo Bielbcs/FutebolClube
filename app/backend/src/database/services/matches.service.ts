@@ -11,7 +11,7 @@ export default class MatchesService {
     return matches;
   };
 
-  getInProgress = async (inProgress: boolean) => {
+  getInProgress = async (inProgress: boolean): Promise<Matches[]> => {
     const matches = await Matches.findAll({ where: { inProgress },
       include: [
         { association: 'teamHome', attributes: { exclude: ['id'] } },
@@ -21,7 +21,7 @@ export default class MatchesService {
     return matches;
   };
 
-  insertMatch = async (body: ITeamsBody) => {
+  insertMatch = async (body: ITeamsBody): Promise<Matches> => {
     const newObj = { ...body, inProgress: true };
 
     const { dataValues } = await Matches.create(newObj);
@@ -29,11 +29,11 @@ export default class MatchesService {
     return dataValues;
   };
 
-  finishMatch = async (id: number) => {
+  finishMatch = async (id: number): Promise<void> => {
     await Matches.update({ inProgress: false }, { where: { id } });
   };
 
-  updateMatchScore = async (id: number, newScores: ITeamsBody) => {
+  updateMatchScore = async (id: number, newScores: ITeamsBody): Promise<void> => {
     const { homeTeamGoals, awayTeamGoals } = newScores;
     await Matches.update({ homeTeamGoals, awayTeamGoals }, { where: { id } });
   };
