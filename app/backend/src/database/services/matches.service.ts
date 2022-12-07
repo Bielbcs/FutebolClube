@@ -4,8 +4,8 @@ import Matches from '../models/Matches';
 export default class MatchesService {
   getAll = async () => {
     const matches = await Matches.findAll({ include: [
-      { association: 'teamHome', attributes: { exclude: ['id'] } },
-      { association: 'teamAway', attributes: { exclude: ['id'] } },
+      { association: 'teamHome', attributes: ['teamName'] },
+      { association: 'teamAway', attributes: ['teamName'] },
     ] });
 
     return matches;
@@ -14,8 +14,8 @@ export default class MatchesService {
   getInProgress = async (inProgress: boolean): Promise<Matches[]> => {
     const matches = await Matches.findAll({ where: { inProgress },
       include: [
-        { association: 'teamHome', attributes: { exclude: ['id'] } },
-        { association: 'teamAway', attributes: { exclude: ['id'] } },
+        { association: 'teamHome', attributes: ['teamName'] },
+        { association: 'teamAway', attributes: ['teamName'] },
       ],
     });
     return matches;
