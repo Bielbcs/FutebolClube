@@ -4,8 +4,10 @@ import LeaderboardService from '../services/leaderboard.service';
 export default class LeaderboardController {
   private leaderboardService = new LeaderboardService();
 
-  getAll = async (req: Request, res: Response) => {
-    const leaderboard = await this.leaderboardService.getAll();
+  getAllHome = async (req: Request, res: Response) => {
+    const { local } = req.params;
+
+    const leaderboard = await this.leaderboardService.getAll(local || 'all');
 
     leaderboard.sort((a, b) =>
       b.totalPoints - a.totalPoints || b.totalVictories - a.totalVictories
