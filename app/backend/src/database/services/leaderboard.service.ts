@@ -9,16 +9,16 @@ export default class LeaderboardService {
   private matches = new MatchesService();
   private teams = new TeamService();
 
-  private homeGoals = (match: Matches) => {
-    if (match.homeTeamGoals > match.awayTeamGoals) return 'totalVictories';
-    if (match.homeTeamGoals < match.awayTeamGoals) return 'totalLosses';
-    if (match.homeTeamGoals === match.awayTeamGoals) return 'totalDraws';
+  private homeGoals = ({ awayTeamGoals, homeTeamGoals }: Matches) => {
+    if (homeTeamGoals > awayTeamGoals) return 'totalVictories';
+    if (homeTeamGoals < awayTeamGoals) return 'totalLosses';
+    if (homeTeamGoals === awayTeamGoals) return 'totalDraws';
   };
 
-  private awayGoals = (match: Matches) => {
-    if (match.homeTeamGoals < match.awayTeamGoals) return 'totalVictories';
-    if (match.homeTeamGoals > match.awayTeamGoals) return 'totalLosses';
-    if (match.homeTeamGoals === match.awayTeamGoals) return 'totalDraws';
+  private awayGoals = ({ awayTeamGoals, homeTeamGoals }: Matches) => {
+    if (homeTeamGoals < awayTeamGoals) return 'totalVictories';
+    if (homeTeamGoals > awayTeamGoals) return 'totalLosses';
+    if (homeTeamGoals === awayTeamGoals) return 'totalDraws';
   };
 
   private getStatics = async (id: number, local: string) => {
@@ -70,20 +70,19 @@ export default class LeaderboardService {
   };
 
   getAll = async (local: string) => {
-    console.log(local);
     const allTeams = await this.teams.getAll();
 
     const test = allTeams.map(async ({ id, teamName }) => {
       const staticts = await this.getStatics(id, local);
       const favorOrOwnGoals = await this.getGoals(id, local);
       const totalPoints = (staticts.totalVictories * 3) + staticts.totalDraws;
-      const sum = (totalPoints / (favorOrOwnGoals.totalGames * 3)) * 100;
+      const efficiency = (totalPoints / (favorOrOwnGoals.totalGames * 3)) * 100;
 
       const newObj: ILeaderboard = { name: teamName,
         totalPoints,
         ...staticts,
         ...favorOrOwnGoals,
-        efficiency: Number(sum.toFixed(2)),
+        efficiency: Number(efficiency.toFixed(2)),
       };
 
       return newObj;
